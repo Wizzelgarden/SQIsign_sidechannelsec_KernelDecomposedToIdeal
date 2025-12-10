@@ -254,14 +254,12 @@ if (f == TORSION_EVEN_POWER) {
         ibz_mat_2x2_eval_secure(&vec, &ACTION_I, vec2, &two_pow);
         ibz_mat_2x2_eval_secure(&vec, &inv, &vec, &two_pow);
 
-
         ibz_mat_2x2_finalize_secure(&mat);
         ibz_mat_2x2_finalize_secure(&inv);
     }
 
-
-        //gmp_printf("a= %Zd\n", &vec[0]);
-        //gmp_printf("b= %Zd\n", &vec[1]);
+        gmp_printf("a= %Zd\n", &vec[0]);
+        gmp_printf("b= %Zd\n", &vec[1]);
 
     // Next, we have to compute the corresponding ideal. In this special instance, we do not need to use the general 
     // functions because we can simplify most calculations
@@ -433,18 +431,20 @@ if (f == TORSION_EVEN_POWER) {
     ibz_mat_4xn_hnf_mod_core(&(lideal->lattice.basis), 8, generators, &temp);
     ibz_copy_secure(&(lideal->lattice.denom), &ibz_const_two);
 
-    /*
+    
     gmp_printf("hnf output\n");
     for(int i=0; i<4; i++){
         for(int j=0; j<4; j++){
             gmp_printf(" %Zd ",&(lideal->lattice.basis[i][j]));
         }
         gmp_printf("\n");
-    }*/
+    }
 
     lideal->parent_order = &MAXORD_O0;
     ibz_copy(&lideal->norm, &two_pow);
     // both is necessary for further computations
+
+    
 
 
     clock_gettime(CLOCK_MONOTONIC, &end);

@@ -28,21 +28,32 @@ void ibz_finalize_secure(ibz_t *x) {
 
 
 
-static inline void ibz_reduce_mod2k_secure(mp_limb_t *rp, const ibz_t *mod) {
+static inline void ibz_reduce_mod2k_secure(mp_limb_t *rp, const ibz_t *mod)
+{
+    size_t mod_bits = mpz_sizeinbase(*mod, 2)-1;
 
-    size_t mod_bits = mpz_sizeinbase(*mod, 2);
-    size_t top_bits = mod_bits % GMP_NUMB_BITS;
+    size_t limb_index = mod_bits / GMP_NUMB_BITS;  
+    size_t top_bits   = mod_bits % GMP_NUMB_BITS;  
 
-    mp_limb_t full_mask = ~(mp_limb_t)0;
-    mp_limb_t mask;
+    // 1. alles über dem höchsten benötigten Limb nullen
+    for (size_t i = limb_index + (top_bits != 0); i < LIMBS; ++i)
+        rp[i] = 0;
+
+    // 2. Falls genau auf Limbgrenze -> nichts maskieren
     if (top_bits == 0) {
-        mask = full_mask;
-    } else {
-        mask = full_mask >> (GMP_NUMB_BITS - top_bits);
+        // volle Limbs bleiben unverändert
+        // rp[limb_index] bleibt ebenfalls voll erhalten,
+        // weil mod_bits genau ein Vielfaches von limbsize ist
+        return;
     }
 
-    rp[LIMBS - 1] &= mask;
+    // 3. Im obersten Limb sauber maskieren:
+    // exakt die unteren top_bits behalten
+    mp_limb_t mask = ((mp_limb_t)1 << top_bits) - 1;
+
+    rp[limb_index] &= mask;
 }
+
 
 
 
@@ -69,7 +80,7 @@ void ibz_copy_secure(ibz_t *target, const ibz_t *value) {
     mp_limb_t *dst = (*target)->_mp_d;
     const mp_limb_t *src = (*value)->_mp_d;
     
-    size_t src_limbs = (size_t)(*value)->_mp_size;
+    size_t src_limbs = (size_t)((*value)->_mp_size);
     size_t dst_limbs = (size_t)(*target)->_mp_alloc;
 
     for (size_t i = 0; i < dst_limbs; i++) {

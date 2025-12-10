@@ -247,6 +247,9 @@ id2iso_kernel_dlogs_to_ideal_even(quat_left_ideal_t *lideal, const ibz_vec_2_t *
         ibz_mat_2x2_finalize(&inv);
     }
 
+            gmp_printf("wtf= %Zd\n", &vec2[0]);
+                    gmp_printf("a= %Zd\n", &vec[0]);
+    
     // final result: a - i + b*(j+(1+k)/2)
     quat_alg_elem_t gen;
     quat_alg_elem_init(&gen);
